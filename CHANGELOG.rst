@@ -2,8 +2,8 @@
 Changelog for package actionlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.12.0 (2019-07-12)
+-------------------
 * Add action client stop
 * Switch to timer and allow stopping actionserver
 * action_server: call ActionServer<ActionSpec>::initialize() in constructor (`#120 <https://github.com/locusrobotics/actionlib/issues/120>`_)
