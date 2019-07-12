@@ -2,6 +2,20 @@
 Changelog for package actionlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add action client stop
+* Switch to timer and allow stopping actionserver
+* action_server: call ActionServer<ActionSpec>::initialize() in constructor (`#120 <https://github.com/locusrobotics/actionlib/issues/120>`_)
+  * ation_server: call ActionServer<ActionSpec>::initialize() in constructor
+  * simple_client_test: added sleep to make test less flaky
+* Print the correct error on waiting for result (`#123 <https://github.com/locusrobotics/actionlib/issues/123>`_)
+* Update maintainer.
+* fix(actionlib): Remove `getState` error output
+  - calling the `getState` function while no goal is running shouldn't
+  report any error.
+* Contributors: Alireza, Carl Saldanha, Christopher Wecht, Michael Carroll, Paul Bovbel
+
 1.11.15 (2018-08-17)
 --------------------
 * unique name for axtools title bar (`#107 <https://github.com/ros/actionlib/issues/107>`_)
