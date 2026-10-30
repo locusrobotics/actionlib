@@ -42,7 +42,7 @@ s_goalcount = 0
 class GoalIDGenerator:
 
     def __init__(self, name=None):
-        """
+        r"""
         * Create a generator that prepends the fully qualified node name to the Goal ID
         * \param name Unique name to prepend to the goal id. This will
         *             generally be a fully qualified node name.
@@ -53,14 +53,14 @@ class GoalIDGenerator:
             self.set_name(rospy.get_name())
 
     def set_name(self, name):
-        """
+        r"""
         * \param name Set the name to prepend to the goal id. This will
         *             generally be a fully qualified node name.
         """
         self.name = name
 
     def generate_ID(self):
-        """
+        r"""
         * \brief Generates a unique ID
         * \return A unique GoalID for this action
         """
