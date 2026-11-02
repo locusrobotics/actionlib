@@ -137,6 +137,11 @@ public:
       return *this;
     }
 
+    Handle(const Handle & rhs)
+    {
+      *this = rhs;
+    }
+
     /**
      * \brief stop tracking the list element with this handle, even though the
      * Handle hasn't gone out of scope
@@ -213,7 +218,7 @@ private:
    */
   Handle add(const T & elem)
   {
-    return add(elem, boost::bind(&ManagedList<T>::defaultDeleter, this, _1) );
+    return add(elem, boost::bind(&ManagedList<T>::defaultDeleter, this, boost::placeholders::_1) );
   }
 
   /**
@@ -231,7 +236,7 @@ private:
     iterator managed_it = iterator(list_it);
 
     ElemDeleter deleter(managed_it, custom_deleter, guard);
-    boost::shared_ptr<void> tracker( (void *) NULL, deleter);
+    boost::shared_ptr<void> tracker(nullptr, deleter);
 
     list_it->handle_tracker_ = tracker;
 

@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -180,7 +179,7 @@ class ClientGoalHandle:
 
     ## @brief Gets the result produced by the action server for this goal.
     ##
-    ## @return None if no result was receieved.  Otherwise the goal's result as a *Result message.
+    ## @return None if no result was received.  Otherwise the goal's result as a *Result message.
     def get_result(self):
         if not self.comm_state_machine:
             rospy.logerr("Trying to get_result on an inactive ClientGoalHandle.")
@@ -535,6 +534,14 @@ class ActionClient:
         self.result_sub = rospy.Subscriber(rospy.remap_name(ns) + '/result', self.ActionResult, callback=self._result_cb, queue_size=self.sub_queue_size)
         self.feedback_sub = rospy.Subscriber(rospy.remap_name(ns) + '/feedback', self.ActionFeedback, callback=self._feedback_cb, queue_size=self.sub_queue_size)
 
+    ## @brief  Stop the action client.
+    def stop(self):
+        self.pub_goal.unregister()
+        self.pub_cancel.unregister()
+        self.status_sub.unregister()
+        self.result_sub.unregister()
+        self.feedback_sub.unregister()
+
     ## @brief Sends a goal to the action server
     ##
     ## @param goal An instance of the *Goal message.
@@ -588,25 +595,31 @@ class ActionClient:
 
                 if self.pub_goal.impl.has_connection(server_id) and \
                         self.pub_cancel.impl.has_connection(server_id):
-                    # We'll also check that all of the subscribers have at least
-                    # one publisher, this isn't a perfect check, but without
-                    # publisher callbacks... it'll have to do
-                    status_num_pubs = 0
-                    for stat in self.status_sub.impl.get_stats()[1]:
-                        if stat[4]:
-                            status_num_pubs += 1
+                    # Check that the connections to the result and feedback
+                    # topics have completed and are ready to receive data.
+                    # Check the connections by checking the callerid from the
+                    # publisher's header against the server_id.
+                    # Note: there is no need to check the status topic, as
+                    # we already received a status message in last_status_msg
+                    # and are using it as the source of truth for the server_id.
+                    # Note: there is no need to grab the c_lock, the
+                    # implementation guarantees to never mutate the connection
+                    # list, only replace the reference. So all we need to do is
+                    # to copy a reference ourselves. This behavior is
+                    # documented in the comment above the c_lock creation in
+                    # rospy._TopicImpl.__init__.
+                    result_sub_connections = self.result_sub.impl.connections
+                    result_sub_found = False
+                    for c in result_sub_connections:
+                        if c.callerid_pub == server_id:
+                            result_sub_found = True
+                    feedback_sub_connections = self.feedback_sub.impl.connections
+                    feedback_sub_found = False
+                    for c in feedback_sub_connections:
+                        if c.callerid_pub == server_id:
+                            feedback_sub_found = True
 
-                    result_num_pubs = 0
-                    for stat in self.result_sub.impl.get_stats()[1]:
-                        if stat[4]:
-                            result_num_pubs += 1
-
-                    feedback_num_pubs = 0
-                    for stat in self.feedback_sub.impl.get_stats()[1]:
-                        if stat[4]:
-                            feedback_num_pubs += 1
-
-                    if status_num_pubs > 0 and result_num_pubs > 0 and feedback_num_pubs > 0:
+                    if result_sub_found and feedback_sub_found:
                         started = True
                         break
 

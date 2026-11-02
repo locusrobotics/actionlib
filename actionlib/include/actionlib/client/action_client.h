@@ -62,7 +62,7 @@ public:
   typedef ClientGoalHandle<ActionSpec> GoalHandle;
 
 private:
-  ACTION_DEFINITION(ActionSpec);
+  ACTION_DEFINITION(ActionSpec)
   typedef ActionClient<ActionSpec> ActionClientT;
   typedef boost::function<void (GoalHandle)> TransitionCallback;
   typedef boost::function<void (GoalHandle, const FeedbackConstPtr &)> FeedbackCallback;
@@ -75,9 +75,9 @@ public:
    * Constructs an ActionClient and sets up the necessary ros topics for the ActionInterface
    * \param name The action name. Defines the namespace in which the action communicates
    * \param queue CallbackQueue from which this action will process messages.
-   *              The default (NULL) is to use the global queue
+   *              The default (nullptr) is to use the global queue
    */
-  ActionClient(const std::string & name, ros::CallbackQueueInterface * queue = NULL)
+  ActionClient(const std::string & name, ros::CallbackQueueInterface * queue = nullptr)
   : n_(name), guard_(new DestructionGuard()),
     manager_(guard_)
   {
@@ -92,10 +92,10 @@ public:
    * \param n The node handle on top of which we want to namespace our action
    * \param name The action name. Defines the namespace in which the action communicates
    * \param queue CallbackQueue from which this action will process messages.
-   *              The default (NULL) is to use the global queue
+   *              The default (nullptr) is to use the global queue
    */
   ActionClient(const ros::NodeHandle & n, const std::string & name,
-    ros::CallbackQueueInterface * queue = NULL)
+    ros::CallbackQueueInterface * queue = nullptr)
   : n_(n, name), guard_(new DestructionGuard()),
     manager_(guard_)
   {
@@ -221,9 +221,9 @@ private:
     int pub_queue_size;
     int sub_queue_size;
     n_.param("actionlib_client_pub_queue_size", pub_queue_size, 10);
-    n_.param("actionlib_client_sub_queue_size", sub_queue_size, 1);
+    n_.param("actionlib_client_sub_queue_size", sub_queue_size, -1);
     if (pub_queue_size < 0) {pub_queue_size = 10;}
-    if (sub_queue_size < 0) {sub_queue_size = 1;}
+    if (sub_queue_size < 0) {sub_queue_size = 0;}
 
     status_sub_ = queue_subscribe("status", static_cast<uint32_t>(sub_queue_size),
         &ActionClientT::statusCb, this, queue);
@@ -236,17 +236,17 @@ private:
 
     // Start publishers and subscribers
     goal_pub_ = queue_advertise<ActionGoal>("goal", static_cast<uint32_t>(pub_queue_size),
-        boost::bind(&ConnectionMonitor::goalConnectCallback, connection_monitor_, _1),
-        boost::bind(&ConnectionMonitor::goalDisconnectCallback, connection_monitor_, _1),
+        boost::bind(&ConnectionMonitor::goalConnectCallback, connection_monitor_, boost::placeholders::_1),
+        boost::bind(&ConnectionMonitor::goalDisconnectCallback, connection_monitor_, boost::placeholders::_1),
         queue);
     cancel_pub_ =
       queue_advertise<actionlib_msgs::GoalID>("cancel", static_cast<uint32_t>(pub_queue_size),
-        boost::bind(&ConnectionMonitor::cancelConnectCallback, connection_monitor_, _1),
-        boost::bind(&ConnectionMonitor::cancelDisconnectCallback, connection_monitor_, _1),
+        boost::bind(&ConnectionMonitor::cancelConnectCallback, connection_monitor_, boost::placeholders::_1),
+        boost::bind(&ConnectionMonitor::cancelDisconnectCallback, connection_monitor_, boost::placeholders::_1),
         queue);
 
-    manager_.registerSendGoalFunc(boost::bind(&ActionClientT::sendGoalFunc, this, _1));
-    manager_.registerCancelFunc(boost::bind(&ActionClientT::sendCancelFunc, this, _1));
+    manager_.registerSendGoalFunc(boost::bind(&ActionClientT::sendGoalFunc, this, boost::placeholders::_1));
+    manager_.registerCancelFunc(boost::bind(&ActionClientT::sendCancelFunc, this, boost::placeholders::_1));
   }
 
   template<class M>
@@ -275,7 +275,7 @@ private:
     ops.datatype = ros::message_traits::datatype<M>();
     ops.helper = ros::SubscriptionCallbackHelperPtr(
       new ros::SubscriptionCallbackHelperT<const ros::MessageEvent<M const> &>(
-        boost::bind(fp, obj, _1)
+        boost::bind(fp, obj, boost::placeholders::_1)
       )
       );
     return n_.subscribe(ops);

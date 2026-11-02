@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # Copyright (c) 2009, Willow Garage, Inc.
 # All rights reserved.
 #
@@ -46,18 +45,6 @@ def nop_cb(goal_handle):
     pass
 
 
-def ros_timer(callable, frequency):
-    rate = rospy.Rate(frequency)
-
-    rospy.logdebug("Starting timer")
-    while not rospy.is_shutdown():
-        try:
-            rate.sleep()
-            callable()
-        except rospy.exceptions.ROSInterruptException:
-            rospy.logdebug("Sleep interrupted")
-
-
 ## @class ActionServer
 ## @brief The ActionServer is a helpful tool for managing goal requests to a
 ## node. It allows the user to specify callbacks that are invoked when goal
@@ -72,7 +59,7 @@ class ActionServer:
     ## @param  actionspec An explicit specification of the action
     ## @param  goal_cb A goal callback to be called when the ActionServer receives a new goal over the wire
     ## @param  cancel_cb A cancel callback to be called when the ActionServer receives a new cancel request over the wire
-    ## @param  auto_start A boolean value that tells the ActionServer wheteher or not to start publishing as soon as it comes up. THIS SHOULD ALWAYS BE SET TO FALSE TO AVOID RACE CONDITIONS and start() should be called after construction of the server.
+    ## @param  auto_start A boolean value that tells the ActionServer whether or not to start publishing as soon as it comes up. THIS SHOULD ALWAYS BE SET TO FALSE TO AVOID RACE CONDITIONS and start() should be called after construction of the server.
     def __init__(self, ns,  ActionSpec, goal_cb, cancel_cb=nop_cb, auto_start=True):
         self.ns = ns
 
@@ -117,12 +104,12 @@ class ActionServer:
                           "in false to avoid race conditions.")
             self.start()
 
-    ## @brief  Register a callback to be invoked when a new goal is received, this will replace any  previously registered callback
+    ## @brief  Register a callback to be invoked when a new goal is received, this will replace any previously registered callback
     ## @param  cb The callback to invoke
     def register_goal_callback(self, cb):
         self.goal_callback = cb
 
-    ## @brief  Register a callback to be invoked when a new cancel is received, this will replace any  previously registered callback
+    ## @brief  Register a callback to be invoked when a new cancel is received, this will replace any previously registered callback
     ## @param  cb The callback to invoke
     def register_cancel_callback(self, cancel_cb):
         self.cancel_callback = cancel_cb
@@ -133,6 +120,17 @@ class ActionServer:
             self.initialize()
             self.started = True
             self.publish_status()
+
+    ## @brief  Stop the action server. Please make sure it is not processing any goals at stop-time.
+    def stop(self):
+        with self.lock:
+            self.started = False
+            self.status_timer.shutdown()
+            self.goal_sub.unregister()
+            self.cancel_sub.unregister()
+            self.status_pub.unregister()
+            self.feedback_pub.unregister()
+            self.result_pub.unregister()
 
     ## @brief  Initialize all ROS connections and setup timers
     def initialize(self):
@@ -166,8 +164,9 @@ class ActionServer:
         status_list_timeout = rospy.get_param(rospy.remap_name(self.ns)+"/status_list_timeout", 5.0)
         self.status_list_timeout = rospy.Duration(status_list_timeout)
 
-        self.status_timer = threading.Thread(None, ros_timer, None, (self.publish_status_async, self.status_frequency))
-        self.status_timer.start()
+        if self.status_frequency > 0.0:
+            status_period = rospy.Duration(1.0 / self.status_frequency)
+            self.status_timer = rospy.Timer(status_period, self.publish_status_async)
 
     ## @brief  Publishes a result for a given goal
     ## @param status The status of the goal with which the result is associated
@@ -230,7 +229,7 @@ class ActionServer:
                         # we also need to reset the time that the status is supposed to be removed from the list
                         st.handle_destruction_time = rospy.Time.now()
 
-                    # set the status of the goal to PREEMPTING or RECALLING as approriate
+                    # set the status of the goal to PREEMPTING or RECALLING as appropriate
                     # and check if the request should be passed on to the user
                     gh = ServerGoalHandle(st, self, handle_tracker)
                     if gh.set_cancel_requested():
@@ -293,7 +292,7 @@ class ActionServer:
                 self.goal_callback(gh)
 
     ## @brief  Publish status for all goals on a timer event
-    def publish_status_async(self):
+    def publish_status_async(self, event):
         with self.lock:
             # we won't publish status unless we've been started
             if not self.started:

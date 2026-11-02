@@ -48,31 +48,31 @@ SimpleActionServer<ActionSpec>::SimpleActionServer(std::string name,
   ExecuteCallback execute_callback,
   bool auto_start)
 : new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false), execute_callback_(
-    execute_callback), execute_thread_(NULL), need_to_terminate_(false)
+    execute_callback), execute_thread_(nullptr), need_to_terminate_(false)
 {
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n_, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       auto_start));
 }
 
 template<class ActionSpec>
 SimpleActionServer<ActionSpec>::SimpleActionServer(std::string name, bool auto_start)
 : new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false), execute_callback_(
-    NULL), execute_thread_(NULL), need_to_terminate_(false)
+    NULL), execute_thread_(nullptr), need_to_terminate_(false)
 {
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n_, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       auto_start));
 
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 }
@@ -81,15 +81,15 @@ template<class ActionSpec>
 SimpleActionServer<ActionSpec>::SimpleActionServer(std::string name,
   ExecuteCallback execute_callback)
 : new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false), execute_callback_(
-    execute_callback), execute_thread_(NULL), need_to_terminate_(false)
+    execute_callback), execute_thread_(nullptr), need_to_terminate_(false)
 {
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n_, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       true));
 
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 }
@@ -100,15 +100,15 @@ SimpleActionServer<ActionSpec>::SimpleActionServer(ros::NodeHandle n, std::strin
   ExecuteCallback execute_callback,
   bool auto_start)
 : n_(n), new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false),
-  execute_callback_(execute_callback), execute_thread_(NULL), need_to_terminate_(false)
+  execute_callback_(execute_callback), execute_thread_(nullptr), need_to_terminate_(false)
 {
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       auto_start));
 
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 }
@@ -117,15 +117,15 @@ template<class ActionSpec>
 SimpleActionServer<ActionSpec>::SimpleActionServer(ros::NodeHandle n, std::string name,
   bool auto_start)
 : n_(n), new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false),
-  execute_callback_(NULL), execute_thread_(NULL), need_to_terminate_(false)
+  execute_callback_(NULL), execute_thread_(nullptr), need_to_terminate_(false)
 {
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       auto_start));
 
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 }
@@ -134,15 +134,15 @@ template<class ActionSpec>
 SimpleActionServer<ActionSpec>::SimpleActionServer(ros::NodeHandle n, std::string name,
   ExecuteCallback execute_callback)
 : n_(n), new_goal_(false), preempt_request_(false), new_goal_preempt_request_(false),
-  execute_callback_(execute_callback), execute_thread_(NULL), need_to_terminate_(false)
+  execute_callback_(execute_callback), execute_thread_(nullptr), need_to_terminate_(false)
 {
   // create the action server
   as_ = boost::shared_ptr<ActionServer<ActionSpec> >(new ActionServer<ActionSpec>(n, name,
-      boost::bind(&SimpleActionServer::goalCallback, this, _1),
-      boost::bind(&SimpleActionServer::preemptCallback, this, _1),
+      boost::bind(&SimpleActionServer::goalCallback, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionServer::preemptCallback, this, boost::placeholders::_1),
       true));
 
-  if (execute_callback_ != NULL) {
+  if (execute_callback_) {
     execute_thread_ = new boost::thread(boost::bind(&SimpleActionServer::executeLoop, this));
   }
 }
@@ -168,7 +168,7 @@ void SimpleActionServer<ActionSpec>::shutdown()
     if (execute_thread_) {
       execute_thread_->join();
       delete execute_thread_;
-      execute_thread_ = NULL;
+      execute_thread_ = nullptr;
     }
   }
 }
@@ -192,7 +192,7 @@ boost::shared_ptr<const typename SimpleActionServer<ActionSpec>::Goal> SimpleAct
   {
     current_goal_.setCanceled(
       Result(),
-      "This goal was canceled because another goal was recieved by the simple action server");
+      "This goal was canceled because another goal was received by the simple action server");
   }
 
   ROS_DEBUG_NAMED("actionlib", "Accepting a new goal");
@@ -293,7 +293,7 @@ template<class ActionSpec>
 void SimpleActionServer<ActionSpec>::goalCallback(GoalHandle goal)
 {
   boost::recursive_mutex::scoped_lock lock(lock_);
-  ROS_DEBUG_NAMED("actionlib", "A new goal has been recieved by the single goal action server");
+  ROS_DEBUG_NAMED("actionlib", "A new goal has been received by the single goal action server");
 
   // check that the timestamp is past or equal to that of the current goal and the next goal
   if ((!current_goal_.getGoal() || goal.getGoalID().stamp >= current_goal_.getGoalID().stamp) &&
@@ -303,7 +303,7 @@ void SimpleActionServer<ActionSpec>::goalCallback(GoalHandle goal)
     if (next_goal_.getGoal() && (!current_goal_.getGoal() || next_goal_ != current_goal_)) {
       next_goal_.setCanceled(
         Result(),
-        "This goal was canceled because another goal was recieved by the simple action server");
+        "This goal was canceled because another goal was received by the simple action server");
     }
 
     next_goal_ = goal;
@@ -330,7 +330,7 @@ void SimpleActionServer<ActionSpec>::goalCallback(GoalHandle goal)
     // the goal requested has already been preempted by a different goal, so we're not going to execute it
     goal.setCanceled(
       Result(),
-      "This goal was canceled because another goal was recieved by the simple action server");
+      "This goal was canceled because another goal was received by the simple action server");
   }
 }
 

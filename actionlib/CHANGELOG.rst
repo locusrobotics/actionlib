@@ -2,6 +2,60 @@
 Changelog for package actionlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.14.3 (2025-05-09)
+-------------------
+* Skip loop delay if new goal is already available (`#212 <https://github.com/ros/actionlib/issues/212>`_)
+* Contributors: Gal Gorjup
+
+1.14.2 (2025-04-25)
+-------------------
+* Use prefix ++ for faster loop iteration (`#202 <https://github.com/ros/actionlib/issues/202>`_)
+* Contributors: Yang Hau
+
+1.14.1 (2025-04-10)
+-------------------
+* fix typo (`#201 <https://github.com/ros/actionlib/issues/201>`_)
+* Drop shebang, Switch to new boost/bind/bind.hpp, Increase timeout for armhf (`#205 <https://github.com/ros/actionlib/issues/205>`_)
+* Fix typo (`#204 <https://github.com/ros/actionlib/issues/204>`_)
+* Fix small typo (`#208 <https://github.com/ros/actionlib/issues/208>`_)
+* Remove usages of deprecated global Boost placeholders (`#197 <https://github.com/ros/actionlib/issues/197>`_)
+* Contributors: Ben Wolsieffer, Jochen Sprickerhof, Robert Haschke, Wolfgang Merkt, Yang Hau
+
+1.14.0 (2022-12-09)
+-------------------
+* Fix constructors of SimpleActionServer (`#194 <https://github.com/ros/actionlib/issues/194>`_)
+* Added a check to see if the transition callback is for the current goal handle (`#177 <https://github.com/ros/actionlib/issues/177>`_)
+  Co-authored-by: Mart Moerdijk <mmoerdijk@smart-robotics.nl>
+* Noetic fixup spurious wakeup (`#190 <https://github.com/ros/actionlib/issues/190>`_)
+* Use nullptr instead of NULL (`#185 <https://github.com/ros/actionlib/issues/185>`_)
+* actionlib: remove unused client_goal_status.h (`#184 <https://github.com/ros/actionlib/issues/184>`_)
+  Co-authored-by: Kyle Fazzari <kyle@canonical.com>
+* Fix small type in debug log message (`#187 <https://github.com/ros/actionlib/issues/187>`_)
+* Remove semicolons from action definitions (`#188 <https://github.com/ros/actionlib/issues/188>`_)
+* Fix python wait_for_server premature return (`#180 <https://github.com/ros/actionlib/issues/180>`_)
+* Add maintainer (`#174 <https://github.com/ros/actionlib/issues/174>`_)
+* Contributors: C. Andy Martin, Guglielmo Gemignani, Hermann von Kleist, Jacob Perron, Jacob Seibert, Kyle Fazzari, Mart Moerdijk, Nick Lamprianidis, Ramon Wijnands
+
+1.13.2 (2020-08-21)
+-------------------
+* narrow down required boost dependencies (`#168 <https://github.com/ros/actionlib/issues/168>`_)
+* Contributors: Mikael Arguedas
+
+1.13.1 (2020-05-19)
+-------------------
+* Fix tiny typo. (`#165 <https://github.com/ros/actionlib/issues/165>`_)
+* Add deleted copy constructor. (`#160 <https://github.com/ros/actionlib/issues/160>`_)
+* roscpp ActionClient subscription queue size should be consistent with rospy. (`#162 <https://github.com/ros/actionlib/issues/162>`_)
+* import setup from setuptools instead of distutils-core (`#163 <https://github.com/ros/actionlib/issues/163>`_)
+* Contributors: Alejandro Hernández Cordero, Ivor Wanders, jschleicher, tomoya
+
+1.13.0 (2020-03-03)
+-------------------
+* Switch to timer and allow stopping actionserver/client (`#142 <https://github.com/ros/actionlib/issues/142>`_)
+* bump CMake minimum version to use new behavior of CMP0048 (`#158 <https://github.com/ros/actionlib/issues/158>`_)
+* Split actionlib and tools into separate packages (`#152 <https://github.com/ros/actionlib/issues/152>`_)
+* Contributors: Michael Carroll, Paul Bovbel, jschleicher
+
 1.12.0 (2019-08-07)
 -------------------
 * Complete the full set of Ptr typedefs (`#106 <https://github.com/ros/actionlib/issues/106>`_)
@@ -88,7 +142,7 @@ Changelog for package actionlib
   and of course it will take more time on top of this for the server to actually process the incoming goal and confirm it. Meantime, it may have sent us feedback messages.
 * Improved the const-correctness of some actionlib classes. (`#50 <https://github.com/ros/actionlib/issues/50>`_)
 * Issue `#51 <https://github.com/ros/actionlib/issues/51>`_: Remove annoying debug messages that make useless to enable debug on Python nodes, as they overwhelm less spamming messages (`#54 <https://github.com/ros/actionlib/issues/54>`_)
-* reduce change of unncessary exception on shutdown bu checking directly in before publishing for a shutdown (`#53 <https://github.com/ros/actionlib/issues/53>`_)
+* reduce change of unnecessary exception on shutdown bu checking directly in before publishing for a shutdown (`#53 <https://github.com/ros/actionlib/issues/53>`_)
 * Contributors: Blake Anderson, Daniel Stonier, Jorge Santos Simón, Mikael Arguedas, uliklank
 
 1.11.6 (2016-06-22)

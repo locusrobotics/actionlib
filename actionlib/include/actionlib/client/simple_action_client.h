@@ -72,7 +72,7 @@ template<class ActionSpec>
 class SimpleActionClient
 {
 private:
-  ACTION_DEFINITION(ActionSpec);
+  ACTION_DEFINITION(ActionSpec)
   typedef ClientGoalHandle<ActionSpec> GoalHandleT;
   typedef SimpleActionClient<ActionSpec> SimpleActionClientT;
 
@@ -180,7 +180,7 @@ public:
 
   /**
    * \brief Get the Result of the current goal
-   * \return shared pointer to the result. Note that this pointer will NEVER be NULL
+   * \return shared pointer to the result. Note that this pointer will NEVER be nullptr
    */
   ResultConstPtr getResult() const;
 
@@ -264,7 +264,7 @@ void SimpleActionClient<ActionSpec>::initSimpleClient(ros::NodeHandle & n, const
       new boost::thread(boost::bind(&SimpleActionClient<ActionSpec>::spinThread, this));
     ac_.reset(new ActionClientT(n, name, &callback_queue));
   } else {
-    spin_thread_ = NULL;
+    spin_thread_ = nullptr;
     ac_.reset(new ActionClientT(n, name));
   }
 }
@@ -330,8 +330,8 @@ void SimpleActionClient<ActionSpec>::sendGoal(const Goal & goal,
   cur_simple_state_ = SimpleGoalState::PENDING;
 
   // Send the goal to the ActionServer
-  gh_ = ac_->sendGoal(goal, boost::bind(&SimpleActionClientT::handleTransition, this, _1),
-      boost::bind(&SimpleActionClientT::handleFeedback, this, _1, _2));
+  gh_ = ac_->sendGoal(goal, boost::bind(&SimpleActionClientT::handleTransition, this, boost::placeholders::_1),
+      boost::bind(&SimpleActionClientT::handleFeedback, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 template<class ActionSpec>
@@ -535,13 +535,13 @@ void SimpleActionClient<ActionSpec>::handleTransition(GoalHandleT gh)
       switch (cur_simple_state_.state_) {
         case SimpleGoalState::PENDING:
         case SimpleGoalState::ACTIVE:
+          if (done_cb_) {
+            done_cb_(getState(), gh.getResult());
+          }
+
           {
             boost::mutex::scoped_lock lock(done_mutex_);
             setSimpleState(SimpleGoalState::DONE);
-          }
-
-          if (done_cb_) {
-            done_cb_(getState(), gh.getResult());
           }
 
           done_condition_.notify_all();
